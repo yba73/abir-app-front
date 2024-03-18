@@ -75,7 +75,7 @@ const SignIn = () => {
               Remember me
             </label>
           </div>
-          <Link to="/forget" className="text-sm underline mb-4">
+          <Link to="/forgot-password" className="text-sm underline mb-4">
             Forgot password?
           </Link>
           <button

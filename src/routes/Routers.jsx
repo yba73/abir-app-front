@@ -18,8 +18,8 @@ const Routers = () => {
         <Route exact path="/" element={<Home />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/forget" element={<Forget />} />
-        <Route path="/reset" element={<Reset />} />
+        <Route path="/forgot-password" element={<Forget />} />
+        <Route path="/auth/password-reset/:id/:token" element={<Reset />} />
         <Route path="/project" element={<Project />} />
 
         <Route element={<UserRoutes />}>

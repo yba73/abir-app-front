@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
+
 /*==== registerUser =====*/
 export const registerUser = createAsyncThunk(
   "user/register",
@@ -47,7 +49,57 @@ export const loginUser = createAsyncThunk(
   }
 );
 /*====// loginUser //=====*/
+/*==== forgot-password =====*/
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.put("/auth/forgot-password", data);
+      console.log("data", data);
+      toast.success(`${response.data.message}`);
+      return response;
+    } catch (error) {
+      toast.error(error.response.data.message);
 
+      return rejectWithValue(
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message
+      );
+    }
+  }
+);
+/*====// forgotPassword //=====*/
+/*==== createNewPassword =====*/
+export const createNewPassword = createAsyncThunk(
+  "auth/createNewPassword",
+  async (data, { rejectWithValue }) => {
+    try {
+      const { password, confirm_password } = data;
+      const sendData = { password, confirm_password };
+      console.log("data", data);
+      const response = await axios.put(
+        `/auth/password-reset/${data.id}`,
+        sendData,
+        {
+          headers: { authorization: data.token },
+        }
+      );
+
+      toast.success(response.data.message);
+      return response;
+    } catch (error) {
+      toast.error(error.response.data.message);
+
+      return rejectWithValue(
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message
+      );
+    }
+  }
+);
+/*====// createNewPassword //=====*/
 /*==== updateUser =====*/
 export const updateUser = createAsyncThunk(
   "user/updateUser",
@@ -153,6 +205,7 @@ const initialState = {
   errors: null,
   loading: false,
   isActive: false,
+  checkResetPassword: false,
 };
 
 const userSlice = createSlice({
@@ -177,7 +230,7 @@ const userSlice = createSlice({
       state.errors = action.payload;
     });
     /*====// registerUser //=====*/
-    /*==== registerUser =====*/
+    /*==== logOut =====*/
     builder.addCase(logOut.fulfilled, (state) => {
       state.userInfo = {};
       state.token = null;
@@ -206,11 +259,26 @@ const userSlice = createSlice({
       state.loading = false;
     });
     /*====// loginUser //=====*/
+
     /*==== updateUser =====*/
     builder.addCase(updateUser.rejected, (state, action) => {
       state.errors = action.payload;
     });
     /*====// updateUser //=====*/
+
+    /*==== checkRestePasswordUrl =====*/
+    builder.addCase(createNewPassword.fulfilled, (state, action) => {
+      state.checkResetPassword = true;
+    });
+    builder.addCase(createNewPassword.rejected, (state, action) => {
+      state.errors = action.payload;
+    });
+    /*====// checkRestePasswordUrl //=====*/
+    /*==== forgotPassword =====*/
+    builder.addCase(forgotPassword.rejected, (state, action) => {
+      state.errors = action.payload;
+    });
+    /*====// forgotPassword //=====*/
     /*==== deleteUser =====*/
     builder.addCase(deleteUser.fulfilled, (state, action) => {
       state.userInfo = {};
